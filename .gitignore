@@ -61,3 +61,6 @@ target/
 # IDE related
 .project
 .pydevproject
+
+# Project realted
+config.yml

@@ -5,7 +5,9 @@ setup(
     name='vktunes',
     author='magniff',
     version='0.0.1',
-    install_requires=["urwid", "vk", "python-vlc", "pyyaml", "click"],
+    install_requires=[
+        "urwid", "vk", "python-vlc", "pyyaml", "click", "watch"
+    ],
     url='https://github.com/magniff/vktunes',
     description='Simple console vk music player.',
 )
