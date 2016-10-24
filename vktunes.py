@@ -28,12 +28,13 @@ def vktunes(config):
     _, *audios = getter.call_api()
     records = [playback.AudioRecord(item) for item in audios]
     ui_pl_items = [ui.UIPlaylistItem(record) for record in records]
-    pl = ui.UIPlaylist(ui_pl_items)
+    pl = ui.UIDefaultMainScreen(ui_pl_items)
+    app = ui.UIApplication(pl)
     palette = [
         ('focused', 'black', 'yellow', 'standout'),
         ('unfocused', 'black', 'dark green'),
     ]
-    urwid.MainLoop(pl, palette=palette).run()
+    app.run_mainloop(palette)
 
 
 if __name__ == '__main__':
