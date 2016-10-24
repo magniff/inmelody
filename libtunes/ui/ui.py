@@ -47,7 +47,7 @@ class UIPlaylistItem(ControlledWidgetWrap):
         )
 
         container = urwid.Columns([artist_title_widget, duration_widget])
-        super().__init__(urwid.AttrMap(container, None, "streak"))
+        super().__init__(urwid.AttrMap(container, "unfocused", "focused"))
 
 
 class UIPlaylist(ControlledWidgetWrap):
@@ -56,17 +56,5 @@ class UIPlaylist(ControlledWidgetWrap):
 
     def __init__(self, playlist_items):
         self.playlist_items = playlist_items
+        super().__init__(urwid.ListBox(urwid.SimpleFocusListWalker(self.playlist_items)))
 
-        super().__init__(
-            urwid.AttrMap(
-                urwid.Pile(self.playlist_items),
-                None, "banner"
-            )
-        )
-
-
-class UIApplication(urwid.WidgetPlaceholder):
-
-    def __init__(self):
-        # initially this widget shows logins screen
-        super().__init__(UIPlaylist())
