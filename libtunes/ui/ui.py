@@ -4,6 +4,7 @@ import datetime
 import urwid
 
 from ..playback.player import AudioRecord
+player = vlc.MediaPlayer()
 
 
 class WW(watch.attr_controllers.AttributeControllerMeta, urwid.WidgetMeta):
@@ -32,7 +33,6 @@ class UIPlaylistItem(ControlledWidgetWrap):
     def keypress(self, size, key):
         "Make this widget the final key processor"
         if key == "enter":
-            player = vlc.MediaPlayer()
             player.set_media(vlc.Media(self.audio_record.mrl))
             player.play()
         return key
@@ -102,9 +102,11 @@ class UIApplication(ControlledWidgetWrap):
         super().__init__(self.main_screen)
 
     def unhandled_input(self, key):
-        if key == 'esc':
-            self.mainloop.widget = self.exit_screen
-            return True
+        if player.is_playing():
+            if key == 'right':
+                player.set_position(player.get_position()+0.05)
+            elif key == 'left':
+                player.set_position(player.get_position()-0.05)
 
     def run_mainloop(self, palette=tuple()):
         self.mainloop = urwid.MainLoop(
