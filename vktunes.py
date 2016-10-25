@@ -31,8 +31,8 @@ def vktunes(config):
     pl = ui.UIDefaultMainScreen(ui_pl_items)
     app = ui.UIApplication(pl)
     palette = [
-        ('focused', 'black', 'yellow', 'standout'),
-        ('unfocused', 'black', 'dark green'),
+        ('focused', 'white,bold', 'dark red', 'bold'),
+        ('unfocused', 'black,standout', 'dark green'),
     ]
     app.run_mainloop(palette)
 

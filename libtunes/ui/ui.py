@@ -70,6 +70,14 @@ class UIDefaultMainScreen(UIMainScreen):
 
     playlist_items = watch.ArrayOf(watch.builtins.InstanceOf(UIPlaylistItem))
 
+    def keypress(self, size, key):
+        if key == "j":
+            super().keypress(size, "down")
+        elif key == "k":
+            super().keypress(size, "up")
+        elif key == "i":
+            super().keypress(size, "enter")
+
     def __init__(self, playlist_items):
         self.playlist_items = playlist_items
         super().__init__(
@@ -107,6 +115,10 @@ class UIApplication(ControlledWidgetWrap):
                 player.set_position(player.get_position()+0.05)
             elif key == 'left':
                 player.set_position(player.get_position()-0.05)
+            elif key == 's':
+                player.stop()
+            elif key == 'm':
+                player.audio_toggle_mute()
 
     def run_mainloop(self, palette=tuple()):
         self.mainloop = urwid.MainLoop(
