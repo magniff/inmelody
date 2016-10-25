@@ -41,7 +41,7 @@ class UIPlaylistItem(ControlledWidgetWrap):
         self.audio_record = audio_record
 
         artist_title_widget = urwid.Text(
-            "%s -- %s" % (self.audio_record.artist, self.audio_record.title),
+            "%s ---- %s" % (self.audio_record.artist, self.audio_record.title),
             align=urwid.LEFT, wrap=urwid.CLIP,
         )
 
@@ -72,17 +72,21 @@ class UIDefaultMainScreen(UIMainScreen):
 
     def keypress(self, size, key):
         if key == "j":
-            super().keypress(size, "down")
+            return super().keypress(size, "down")
         elif key == "k":
-            super().keypress(size, "up")
+            return super().keypress(size, "up")
         elif key == "i":
-            super().keypress(size, "enter")
+            return super().keypress(size, "enter")
+        else:
+            return key
 
     def __init__(self, playlist_items):
         self.playlist_items = playlist_items
+        contents = [urwid.LineBox(urwid.Edit("Filter:"))]
+        contents.extend(self.playlist_items)
         super().__init__(
             urwid.LineBox(
-                urwid.ListBox(urwid.SimpleListWalker(self.playlist_items))
+                urwid.ListBox(urwid.SimpleListWalker(contents))
             )
         )
 
