@@ -1,7 +1,6 @@
 import yaml
 import watch
 import click
-import urwid
 
 from libtunes import networking
 from libtunes import ui
@@ -27,12 +26,13 @@ def vktunes(config):
     getter = networking.AudioGet(api_object)
     _, *audios = getter.call_api()
     records = [playback.AudioRecord(item) for item in audios]
-    ui_pl_items = [ui.UIPlaylistItem(record) for record in records]
-    pl = ui.UIDefaultMainScreen(ui_pl_items)
-    app = ui.UIApplication(pl)
+    left = ui.UIFiltrableRecordList(records=records, album_name="ALL RECORDS")
+    right = ui.UIFiltrableRecordList(records=records, album_name="ALL RECORDS")
+    columns = ui.UIDoubleColumnFiltrableList(left, right)
+    app = ui.UIApplication(ui.UIMainFrame(columns))
     palette = [
-        ('focused', 'white,bold', 'dark red', 'bold'),
-        ('unfocused', 'black,standout', 'dark green'),
+        ('focused', 'white,bold', 'dark green', 'bold'),
+        ('unfocused', 'light gray', 'black', 'bold'),
     ]
     app.run_mainloop(palette)
 

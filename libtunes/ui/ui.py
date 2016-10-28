@@ -30,6 +30,9 @@ class UIPlaylistItem(ControlledWidgetWrap):
 
     audio_record = watch.builtins.InstanceOf(AudioRecord)
 
+    def assign_weight(self, widget, weight):
+        return ('weight', weight, widget)
+
     def keypress(self, size, key):
         "Make this widget the final key processor"
         if key == "enter":
@@ -40,93 +43,105 @@ class UIPlaylistItem(ControlledWidgetWrap):
     def __init__(self, audio_record):
         self.audio_record = audio_record
 
-        artist_title_widget = urwid.Text(
-            "%s ---- %s" % (self.audio_record.artist, self.audio_record.title),
-            align=urwid.LEFT, wrap=urwid.CLIP,
-        )
-
         duration_widget = urwid.Text(
             str(datetime.timedelta(seconds=self.audio_record.duration)),
             align=urwid.RIGHT, wrap=urwid.CLIP
         )
 
-        container = urwid.Columns([artist_title_widget, duration_widget])
+        title_widget = urwid.Text(
+            self.audio_record.title, align=urwid.LEFT, wrap=urwid.CLIP
+        )
+
+        artist_widget = urwid.Text(
+            self.audio_record.artist, align=urwid.LEFT, wrap=urwid.CLIP
+        )
+
+        container = urwid.Columns(
+            [
+                self.assign_weight(artist_widget, 2),
+                self.assign_weight(title_widget, 3),
+                self.assign_weight(duration_widget, 1)
+            ],
+            dividechars=2
+        )
         super().__init__(urwid.AttrMap(container, "unfocused", "focused"))
 
 
-class UIMainScreen(ControlledWidgetWrap):
-    pass
+class UIPlaylistFilter(ControlledWidgetWrap):
+    def __init__(self, filter_caption):
+        super().__init__(urwid.Edit(filter_caption))
 
 
-class UIExitScreen(ControlledWidgetWrap):
-    pass
+class UIFiltrableRecordList(ControlledWidgetWrap):
+
+    list_member_class = UIPlaylistItem
+    filter_class = UIPlaylistFilter
+
+    def build_records_list_widget(self, records):
+        record_widgets = [
+            self.list_member_class(record) for record in records
+        ]
+        return urwid.ListBox(
+            urwid.SimpleFocusListWalker(record_widgets)
+        )
+
+    def compose_widget(self):
+        return self.records_list_widget
+
+    def __init__(self, records, album_name="<Untitled album>"):
+        self.album_name = album_name
+        self.records_list_widget = self.build_records_list_widget(records)
+        super().__init__(self.compose_widget())
 
 
-class UILoginScreen(ControlledWidgetWrap):
-    pass
+class UIDoubleColumnFiltrableList(urwid.Columns):
+
+    def compose_widget(self):
+        return [
+            urwid.LineBox(self.left, title=self.left.album_name),
+            urwid.LineBox(self.right, title=self.right.album_name),
+        ]
+
+    def __init__(self, left, rigth):
+        self.left = left
+        self.right = rigth
+        super().__init__(self.compose_widget())
 
 
-class UIDefaultMainScreen(UIMainScreen):
+class UIMainFrame(urwid.Frame):
 
-    playlist_items = watch.ArrayOf(watch.builtins.InstanceOf(UIPlaylistItem))
+    def build_header(self):
+        return urwid.Text("this would be header")
 
-    def keypress(self, size, key):
-        if key == "j":
-            return super().keypress(size, "down")
-        elif key == "k":
-            return super().keypress(size, "up")
-        elif key == "i":
-            return super().keypress(size, "enter")
-        else:
-            return key
+    def build_footer(self):
+        return urwid.Text("this would be footer")
 
-    def __init__(self, playlist_items):
-        self.playlist_items = playlist_items
-        contents = [urwid.LineBox(urwid.Edit("Filter:"))]
-        contents.extend(self.playlist_items)
+    def __init__(self, body):
         super().__init__(
-            urwid.LineBox(
-                urwid.ListBox(urwid.SimpleListWalker(contents))
-            )
+            body=body, header=self.build_header(), footer=self.build_footer()
         )
 
 
-class UIDefaultExitScreen(UIExitScreen):
+class UIBackground(urwid.SolidFill):
     def __init__(self):
-        pass
+        super().__init__(" ")
 
 
-class UIDefaultLoginScreen(UILoginScreen):
-    def __init__(self):
-        pass
+class UIApplication(urwid.Overlay):
+    background_widget_class = UIBackground
 
-
-class UIApplication(ControlledWidgetWrap):
-
-    login_screen = watch.builtins.InstanceOf(UILoginScreen)
-    exit_screen = watch.builtins.InstanceOf(UIExitScreen)
-    main_screen = watch.builtins.InstanceOf(UIMainScreen)
-
-    def __init__(self, main_screen, login_screen=None, exit_screen=None):
-        self.login_screen = login_screen or UIDefaultLoginScreen()
-        self.exit_screen = exit_screen or UIDefaultExitScreen()
-        self.main_screen = main_screen
-        super().__init__(self.main_screen)
+    def __init__(self, main_screen, background=None, **kwargs):
+        super().__init__(
+            main_screen, background or self.background_widget_class(),
+            align='center', width=140, valign='middle', height=80
+        )
 
     def unhandled_input(self, key):
-        if player.is_playing():
-            if key == 'right':
-                player.set_position(player.get_position()+0.05)
-            elif key == 'left':
-                player.set_position(player.get_position()-0.05)
-            elif key == 's':
-                player.stop()
-            elif key == 'm':
-                player.audio_toggle_mute()
+        pass
 
     def run_mainloop(self, palette=tuple()):
         self.mainloop = urwid.MainLoop(
-            self.original_widget, palette=palette,
+            self, palette=palette,
             unhandled_input=self.unhandled_input
         )
         self.mainloop.run()
