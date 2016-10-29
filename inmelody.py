@@ -25,8 +25,10 @@ def inmelody(config):
     provider.handle = provider.configure(Config(yaml.load(config)))
     app = ui.UIDefaultApplication()
     palette = [
-        ('focused', 'white,bold', 'dark green', 'bold'),
-        ('unfocused', 'light gray', 'black', 'bold'),
+        ('focused', 'black,bold', 'light green', 'bold'),
+        ('unfocused', 'white', 'dark green', 'bold'),
+        ('background', 'white,bold', 'dark gray', 'bold'),
+        ('panel_background', 'white,bold', 'light blue', 'bold'),
     ]
     app.run_mainloop(palette)
 

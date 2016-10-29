@@ -59,18 +59,22 @@ class UILoginFrame(UIBaseMainFrame):
             self._password_edit,
             urwid.Columns(
                 [
-                    self._connect_button,
-                    self._cancel_button
-                ]),
-            self._status_widget
+                    urwid.AttrMap(self._connect_button, 'unfocused', 'focused'),
+                    urwid.AttrMap(self._cancel_button, 'unfocused', 'focused'),
+                ],
+                dividechars=3
+            ),
         ])
 
         urwid.connect_signal(self._connect_button, 'click', self._connect)
         urwid.connect_signal(self._cancel_button, 'click', stop_main_loop)
-        return urwid.Filler(urwid.LineBox(self._body_layout))
+        return urwid.AttrMap(
+            urwid.Filler(urwid.LineBox(self._body_layout)),
+            'panel_background'
+        )
 
     def build_header(self):
-        return urwid.Text("Header here")
+        return urwid.Text("vk.com music player by magniff")
 
     def build_footer(self):
         return urwid.Text("Footer here")
@@ -83,7 +87,7 @@ class UILoginScreen(UIBaseScreen):
         return UILoginFrame(application=self.application)
 
     def build_background(self):
-        return UIBackground()
+        return urwid.AttrMap(UIBackground(), 'background')
 
 
 class UIMainFrame(UIBaseMainFrame):
@@ -107,7 +111,7 @@ class UIMainScreen(UIBaseMainScreen):
         return UIMainFrame(application=self.application)
 
     def build_background(self):
-        return UIBackground()
+        return urwid.AttrMap(UIBackground(), 'panel_background')
 
 
 DEFAULT_SCREENSET = {
