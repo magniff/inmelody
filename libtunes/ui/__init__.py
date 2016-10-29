@@ -40,23 +40,28 @@ class UILoginFrame(UIBaseMainFrame):
 
     def build_body(self):
         self._password_edit = urwid.Edit(
-            caption="Password: ", mask="*",
-            edit_text=provider.handle.password
+            mask="*", edit_text=provider.handle.password
         )
         self._login_edit = urwid.Edit(
-            caption="VK login: ", mask="*",
-            edit_text=provider.handle.login
+            mask="*", edit_text=provider.handle.login
         )
         self._app_id_edit = urwid.Edit(
-            caption="App id: ", mask="*",
-            edit_text=str(provider.handle.app_id)
+            mask="*", edit_text=str(provider.handle.app_id)
         )
         self._connect_button = urwid.Button("Connect")
         self._cancel_button = urwid.Button("Cancel")
         self._status_widget = urwid.Text("")
-        self._body_layout = urwid.Pile([
-            logo_widget, self._app_id_edit, self._login_edit,
-            self._password_edit,
+        edit_block = urwid.Padding(
+            urwid.Pile([
+                urwid.Columns([urwid.Text('App id:'), self._app_id_edit]),
+                urwid.Columns([urwid.Text('Login:'), self._login_edit]),
+                urwid.Columns([urwid.Text('Password:'), self._password_edit])
+            ]),
+            align=urwid.CENTER,
+            width=60
+        )
+
+        button_block = urwid.Padding(
             urwid.Columns(
                 [
                     urwid.AttrMap(self._connect_button, 'unfocused', 'focused'),
@@ -64,12 +69,29 @@ class UILoginFrame(UIBaseMainFrame):
                 ],
                 dividechars=3
             ),
+            align=urwid.CENTER,
+            width=60,
+        )
+
+        logo_padded = urwid.Padding(logo_widget, align=urwid.CENTER, width=60)
+        self._body_layout = urwid.Pile([
+            logo_padded,
+            urwid.Divider('-'),
+            edit_block,
+            urwid.Divider('-'),
+            button_block
         ])
 
         urwid.connect_signal(self._connect_button, 'click', self._connect)
         urwid.connect_signal(self._cancel_button, 'click', stop_main_loop)
         return urwid.AttrMap(
-            urwid.Filler(urwid.LineBox(self._body_layout)),
+            urwid.Filler(
+                urwid.Padding(
+                    urwid.LineBox(self._body_layout),
+                    align=urwid.CENTER,
+                    width=70
+                )
+            ),
             'panel_background'
         )
 

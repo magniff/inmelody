@@ -27,8 +27,8 @@ def inmelody(config):
     palette = [
         ('focused', 'black,bold', 'light green', 'bold'),
         ('unfocused', 'white', 'dark green', 'bold'),
-        ('background', 'white,bold', 'dark gray', 'bold'),
-        ('panel_background', 'white,bold', 'light blue', 'bold'),
+        ('background', 'white', 'dark gray', 'bold'),
+        ('panel_background', 'white', 'light blue', 'bold'),
     ]
     app.run_mainloop(palette)
 
