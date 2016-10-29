@@ -2,11 +2,11 @@ import vk
 from .audio import AudioGet, AudioSearch
 
 
-def create_api_handler(config):
+def create_api_handler(app_id, login, password):
     try:
         session = vk.AuthSession(
-            app_id=config.app_id, user_login=config.login,
-            user_password=config.password, scope='audio'
+            app_id=app_id, user_login=login,
+            user_password=password, scope='audio'
         )
     except vk.exceptions.VkAuthError:
         api = None
