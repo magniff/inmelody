@@ -50,7 +50,7 @@ class UIPlaylistItem(UIBaseComponent):
         container = urwid.Columns(
             [
                 self.assign_weight(artist_widget, 2),
-                self.assign_weight(title_widget, 3),
+                self.assign_weight(title_widget, 4),
                 self.assign_weight(duration_widget, 1)
             ],
             dividechars=2
