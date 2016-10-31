@@ -11,6 +11,12 @@ class UIBaseComponent(ControlledWidgetWrap):
     pass
 
 
+class UIBackground(UIBaseComponent):
+
+    def __init__(self):
+        super().__init__(urwid.SolidFill(" "))
+
+
 class UIPlaylistItem(UIBaseComponent):
 
     audio_record = watch.builtins.InstanceOf(AudioRecord)
@@ -19,6 +25,10 @@ class UIPlaylistItem(UIBaseComponent):
         return ('weight', weight, widget)
 
     def keypress(self, size, key):
+        if key == "enter":
+            provider.playback.play_mrl(self.audio_record.mrl)
+        elif key == "esc":
+            provider.playback.stop()
         return key
 
     def __init__(self, audio_record):
@@ -45,7 +55,9 @@ class UIPlaylistItem(UIBaseComponent):
             ],
             dividechars=2
         )
-        super().__init__(urwid.AttrMap(container, "unfocused", "focused"))
+        super().__init__(
+            urwid.AttrMap(container, "plitem_unfocused", "focused")
+        )
 
 
 class UIPlaylistFilter(UIBaseComponent):
@@ -60,7 +72,7 @@ class UIFiltrableRecordList(UIBaseComponent):
 
     def record_list_by_user_id(self, user_id=None):
         return self.build_records_list_widget(
-            provider.handle.get_records_by_user_id(user_id=user_id)
+            provider.network.get_records_by_user_id(user_id=user_id)
         )
 
     def build_records_list_widget(self, records):
@@ -92,9 +104,4 @@ class UIDoubleColumnFiltrableList(UIBaseComponent):
         self.left = left
         self.right = right
         super().__init__(self.compose_widget())
-
-
-class UIBackground(UIBaseComponent):
-    def __init__(self):
-        super().__init__(urwid.SolidFill(" "))
 

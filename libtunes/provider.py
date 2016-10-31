@@ -1,44 +1,72 @@
+import urwid
+import vk
+import watch
+
 from .networking import create_api_handler, AudioGet
-from .playback import AudioRecord
+from .playback import AudioRecord, Player
 
 
-handle = None
+class BaseController(watch.WatchMe):
+    pass
 
 
-class Provider:
+class Network(BaseController):
+    vk_app_id = watch.builtins.InstanceOf(int)
+    login = watch.builtins.InstanceOf(str)
+    password = watch.builtins.InstanceOf(str)
+    api = watch.builtins.InstanceOf(vk.API)
+
+    def __init__(self, config_object):
+        self.vk_app_id = config_object.app_id
+        self.login = config_object.login
+        self.password = config_object.password
 
     def get_records_by_user_id(self, user_id=None):
-        getter = AudioGet(self._vk_api)
+        getter = AudioGet(self.api)
         if user_id is not None:
             getter.owner_id = user_id
-
-        return (AudioRecord(record) for record in getter.call_api())
+        return tuple(AudioRecord(record) for record in getter.call_api())
 
     def connect(self, app_id, login, password, fail_cb, succ_cb, *args):
         api = create_api_handler(app_id, login, password)
         if api is None:
             fail_cb()
         else:
-            self._vk_api = api
+            self.api = api
             succ_cb()
 
-    @property
-    def app_id(self):
-        return self._config.app_id
 
-    @property
-    def password(self):
-        return self._config.password
-
-    @property
-    def login(self):
-        return self._config.login
-
-    def __init__(self, config):
-        self._config = config
-        self._vk_api = None
+class UI(BaseController):
+    pass
 
 
-def configure(config_object):
-    return Provider(config_object)
+class Playback(BaseController):
+    player = watch.builtins.InstanceOf(Player)
+
+    def __init__(self, player=None):
+        self.player = player or Player()
+
+    def stop(self):
+        self.player.stop()
+
+    def play_mrl(self, mrl):
+        self.player.play_mrl(mrl)
+
+
+class App(BaseController):
+
+    def shutdown(self):
+        raise urwid.ExitMainLoop()
+
+    def __getattr__(self, attr_name):
+        return getattr(self.app, attr_name)
+
+    def __init__(self, app):
+        self.app = app
+
+
+app = None
+network = None
+playback = None
+ui = None
 

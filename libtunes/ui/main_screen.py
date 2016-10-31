@@ -14,8 +14,7 @@ class UIBaseMainFrame(urwid.Frame):
     def build_footer(self):
         raise NotImplementedError()
 
-    def __init__(self, application):
-        self.application = application
+    def __init__(self):
         super().__init__(
             body=self.build_body(),
             header=self.build_header(),

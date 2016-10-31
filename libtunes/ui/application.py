@@ -5,22 +5,23 @@ class UIBaseApplication:
     initial_widget_name = "login_screen"
 
     def __getattr__(self, attr_name):
-        if attr_name not in self._screens:
+        if attr_name not in self.screens:
             return super().__getattr__(attr_name)
 
-        if isinstance(self._screens[attr_name], type):
-            self._screens[attr_name] = self._screens[attr_name](self)
+        if isinstance(self.screens[attr_name], type):
+            self.screens[attr_name] = self.screens[attr_name]()
 
-        return self._screens[attr_name]
+        return self.screens[attr_name]
 
-    def __init__(self, screens):
-        self._screens = screens
-
-    def run_mainloop(self, palette):
+    def __init__(self, screens, palette):
+        self.screens = screens
         self.mainloop = urwid.MainLoop(
-            getattr(self, self.initial_widget_name), palette=palette,
-            unhandled_input=self.unhandled_input
+            widget=self.screens[self.initial_widget_name](),
+            unhandled_input=self.unhandled_input,
+            palette=palette
         )
+
+    def run_mainloop(self):
         self.mainloop.run()
 
     def unhandled_input(self, key):

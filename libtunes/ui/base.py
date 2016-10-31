@@ -34,8 +34,7 @@ class UIBaseScreen(urwid.Overlay):
     def build_frame(self):
         raise NotImplementedError()
 
-    def __init__(self, application):
-        self.application = application
+    def __init__(self):
         super().__init__(
             self.build_frame(), self.build_background(),
             align=self.horisontal_align, width=self.width,

@@ -2,9 +2,7 @@ import yaml
 import watch
 import click
 
-from libtunes import networking
 from libtunes import ui
-from libtunes import playback
 from libtunes import provider
 
 
@@ -22,15 +20,20 @@ class Config(watch.WatchMe):
 @click.command()
 @click.option('-c', '--config', type=click.File(), required=True)
 def inmelody(config):
-    provider.handle = provider.configure(Config(yaml.load(config)))
-    app = ui.UIDefaultApplication()
+    provider.network = provider.Network(Config(yaml.load(config)))
     palette = [
         ('focused', 'black,bold', 'light green', 'bold'),
+        ('audio_list_focused', 'white', 'yellow', 'bold'),
         ('unfocused', 'white', 'dark green', 'bold'),
+        ('plitem_unfocused', 'white', 'light blue', 'bold'),
         ('background', 'white', 'dark gray', 'bold'),
         ('panel_background', 'white', 'light blue', 'bold'),
     ]
-    app.run_mainloop(palette)
+    app = ui.UIDefaultApplication(palette=palette)
+    provider.app = provider.App(app)
+    provider.playback = provider.Playback()
+    provider.ui = provider.UI()
+    app.run_mainloop()
 
 
 if __name__ == '__main__':

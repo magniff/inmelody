@@ -27,7 +27,7 @@ class UILoginFrame(UIBaseMainFrame):
         return callback
 
     def _connect(self, *args):
-        provider.handle.connect(
+        provider.network.connect(
             app_id=self._app_id_edit.get_edit_text(),
             login=self._login_edit.get_edit_text(),
             password=self._password_edit.get_edit_text(),
@@ -36,17 +36,17 @@ class UILoginFrame(UIBaseMainFrame):
         )
 
     def _next_screen(self):
-        self.application.mainloop.widget = self.application.main_screen
+        provider.app.mainloop.widget = provider.app.main_screen
 
     def build_body(self):
         self._password_edit = urwid.Edit(
-            mask="*", edit_text=provider.handle.password
+            mask="*", edit_text=provider.network.password
         )
         self._login_edit = urwid.Edit(
-            mask="*", edit_text=provider.handle.login
+            mask="*", edit_text=provider.network.login
         )
         self._app_id_edit = urwid.Edit(
-            mask="*", edit_text=str(provider.handle.app_id)
+            mask="*", edit_text=str(provider.network.vk_app_id)
         )
         self._connect_button = urwid.Button("Connect")
         self._cancel_button = urwid.Button("Cancel")
@@ -106,7 +106,7 @@ class UILoginScreen(UIBaseScreen):
     width = 80
 
     def build_frame(self):
-        return UILoginFrame(application=self.application)
+        return UILoginFrame()
 
     def build_background(self):
         return urwid.AttrMap(UIBackground(), 'background')
@@ -130,10 +130,10 @@ class UIMainFrame(UIBaseMainFrame):
 class UIMainScreen(UIBaseMainScreen):
 
     def build_frame(self):
-        return UIMainFrame(application=self.application)
+        return UIMainFrame()
 
     def build_background(self):
-        return urwid.AttrMap(UIBackground(), 'panel_background')
+        return urwid.AttrMap(UIBackground(), 'background')
 
 
 DEFAULT_SCREENSET = {
@@ -143,9 +143,10 @@ DEFAULT_SCREENSET = {
 
 
 class UIDefaultApplication(UIBaseApplication):
+
     def unhandled_input(self, key):
         pass
 
-    def __init__(self):
-        super().__init__(screens=DEFAULT_SCREENSET)
+    def __init__(self, palette):
+        super().__init__(screens=DEFAULT_SCREENSET, palette=palette)
 
